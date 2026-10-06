@@ -10,7 +10,8 @@ def test_home():
     response = client.get("/")
 
     assert response.status_code == 200
-    assert response.json()["message"] == "Developer Assistant Agent is running"
+    assert "text/html" in response.headers["content-type"]
+    assert "Smart Developer Assistant" in response.text
 
 
 def test_health():
@@ -23,7 +24,19 @@ def test_health():
 def test_empty_question():
     response = client.post(
         "/ask",
-        json={"question": ""}
+        json={
+            "question": "",
+            "session_id": "test-session"
+        }
     )
 
     assert response.status_code == 422
+
+
+def test_clear_chat():
+    response = client.delete(
+        "/clear-chat/test-session"
+    )
+
+    assert response.status_code == 200
+    assert response.json()["message"] == "Chat history cleared"

@@ -71,6 +71,35 @@ body {
 
 
 /* ------------------------------
+   New Chat Button
+------------------------------ */
+
+#new-chat-button {
+    margin-left: auto;
+
+    padding: 10px 16px;
+
+    border: 1px solid #334155;
+    border-radius: 10px;
+
+    background: #111827;
+    color: #cbd5e1;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#new-chat-button:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+
+/* ------------------------------
    Chat Container
 ------------------------------ */
 
@@ -126,7 +155,9 @@ body {
 }
 
 
-/* Assistant Message */
+/* ------------------------------
+   Assistant Message
+------------------------------ */
 
 .assistant-message .message-content {
     background: #1e293b;
@@ -134,7 +165,9 @@ body {
 }
 
 
-/* User Message */
+/* ------------------------------
+   User Message
+------------------------------ */
 
 .user-message {
     display: flex;
@@ -306,4 +339,9 @@ footer {
         max-width: 90%;
     }
 
+    /* New Chat button on mobile */
+    #new-chat-button {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
 }
