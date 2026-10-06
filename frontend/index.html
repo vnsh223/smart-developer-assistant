@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Developer Assistant</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+
+            <div class="logo">
+                🤖
+            </div>
+
+            <div>
+                <h1>Smart Developer Assistant</h1>
+                <p>AI-powered assistant with tools & RAG</p>
+            </div>
+
+        </header>
+
+
+        <!-- Chat Area -->
+        <main class="chat-container">
+
+            <div id="chat-box" class="chat-box">
+
+                <!-- Welcome Message -->
+                <div class="message assistant-message">
+
+                    <div class="message-label">
+                        🤖 Assistant
+                    </div>
+
+                    <div class="message-content">
+                        👋 Hi! I'm your Smart Developer Assistant.
+                        <br><br>
+                        Ask me about calculations, currency conversion,
+                        current information, or company policies.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Input Area -->
+            <div class="input-container">
+
+                <textarea
+                    id="question"
+                    placeholder="Ask me anything..."
+                    rows="1"
+                ></textarea>
+
+                <button id="ask-button">
+                    Ask
+                </button>
+
+            </div>
+
+
+            <!-- Example Questions -->
+            <div class="examples">
+
+                <p>💡 Try asking</p>
+
+                <div class="example-buttons">
+
+                    <button onclick="useExample('What is 25 multiplied by 20?')">
+                        🧮 Calculate
+                    </button>
+
+                    <button onclick="useExample('Convert 100 USD to INR.')">
+                        💱 Currency
+                    </button>
+
+                    <button onclick="useExample('What is the latest Python version?')">
+                        🌐 Web Search
+                    </button>
+
+                    <button onclick="useExample('How many paid leave days do employees get?')">
+                        📚 Company Policy
+                    </button>
+
+                </div>
+
+            </div>
+
+        </main>
+
+
+        <!-- Footer -->
+        <footer>
+            Built with Python • LangChain • Groq • FastAPI • RAG
+        </footer>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script src="/static/script.js"></script>
+
+</body>
+
+</html>
