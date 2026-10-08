@@ -15,6 +15,14 @@
 
 <br>
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Open_App-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://smart-developer-assistant.onrender.com/docs)
+[![API Docs](https://img.shields.io/badge/📘_API_Docs-Swagger_UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://smart-developer-assistant.onrender.com/docs)
+
+> ⏳ Hosted on Render's free tier, so the first request may take 30-60 seconds to wake the server up.
+
+<br>
+
+[Live Demo](#-live-demo) •
 [Features](#-features) •
 [Architecture](#-architecture) •
 [Tech Stack](#-tech-stack) •
@@ -31,6 +39,27 @@
 **Smart Developer Assistant** is an AI agent built with **LangChain** and **Groq**. Instead of answering everything from the model's memory, the agent *reasons about each question* and dynamically chooses the best tool: a calculator, a live currency API, web search, or a RAG pipeline over company documents.
 
 It is exposed through a **FastAPI** REST endpoint with **Pydantic** validation and covered by **Pytest** tests.
+
+---
+
+## 🌍 Live Demo
+
+**👉 Try it here: [smart-developer-assistant.onrender.com/docs](https://smart-developer-assistant.onrender.com/docs)**
+
+1. Open the link above (wait up to a minute if the server is waking up).
+2. Click **`POST /ask`** → **Try it out**.
+3. Paste one of the questions below and hit **Execute**.
+
+```json
+{ "question": "Convert 100 USD to INR." }
+```
+
+| Try asking | Tool the agent will use |
+|---|---|
+| `What is 25 multiplied by 20?` | 🧮 Calculator |
+| `Convert 100 USD to INR.` | 💱 Currency Converter |
+| `What is the latest Python version?` | 🌐 Web Search |
+| `How many paid leave days do employees get?` | 📚 Company Policy RAG |
 
 ---
 
@@ -238,7 +267,15 @@ Send a question to the AI agent. It automatically chooses the right tool.
 }
 ```
 
-**Using cURL**
+**Using cURL (live API)**
+
+```bash
+curl -X POST "https://smart-developer-assistant.onrender.com/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is 25 multiplied by 20?"}'
+```
+
+**Using cURL (local)**
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/ask" \
@@ -285,7 +322,7 @@ pytest
 - [ ] Support uploading custom documents for RAG
 - [ ] Add Docker support
 - [ ] Add a simple web UI
-- [ ] Deploy to the cloud
+- [x] Deployed on Render
 
 ---
 
