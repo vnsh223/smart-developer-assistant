@@ -1,207 +1,317 @@
+<div align="center">
+
 # 🤖 Smart Developer Assistant Agent
 
-An LLM-powered developer assistant that can understand user queries and dynamically use different tools to provide accurate answers.
+### An LLM-powered agent that understands your question and picks the right tool to answer it.
 
-Built with **Python, LangChain, Groq, FastAPI, RAG, and Chroma**.
+<br>
+
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=groq&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/Chroma-FF6446?style=for-the-badge)
+![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
+
+<br>
+
+[Features](#-features) •
+[Architecture](#-architecture) •
+[Tech Stack](#-tech-stack) •
+[Getting Started](#-getting-started) •
+[API Usage](#-api-usage) •
+[Testing](#-testing)
+
+</div>
+
+---
+
+## 📖 Overview
+
+**Smart Developer Assistant** is an AI agent built with **LangChain** and **Groq**. Instead of answering everything from the model's memory, the agent *reasons about each question* and dynamically chooses the best tool: a calculator, a live currency API, web search, or a RAG pipeline over company documents.
+
+It is exposed through a **FastAPI** REST endpoint with **Pydantic** validation and covered by **Pytest** tests.
+
+---
 
 ## ✨ Features
 
-- 🤖 LLM-powered AI Agent
-- 🔧 Dynamic tool selection
-- 🧮 Calculator for mathematical operations
-- 💱 Currency conversion using Frankfurter API
-- 🌐 Web search for current information
-- 📚 RAG-based company policy search
-- 🗄️ Chroma vector database
-- 🚀 FastAPI REST API
-- 🛡️ Pydantic request validation
-- 🧪 Pytest API testing
-- ⚠️ Error handling
+| | Feature | Description |
+|---|---|---|
+| 🤖 | **LLM-Powered Agent** | Groq-hosted LLM decides which tool to call |
+| 🔧 | **Dynamic Tool Selection** | Picks the right tool per query, automatically |
+| 🧮 | **Calculator** | Accurate mathematical operations |
+| 💱 | **Currency Conversion** | Live exchange rates via the Frankfurter API |
+| 🌐 | **Web Search** | Current information via DuckDuckGo |
+| 📚 | **RAG Policy Search** | Answers from company documents with citations to source text |
+| 🗄️ | **Vector Database** | Chroma stores and retrieves document embeddings |
+| 🚀 | **REST API** | Fast, async FastAPI backend with Swagger docs |
+| 🛡️ | **Request Validation** | Pydantic models reject bad input |
+| 🧪 | **Automated Tests** | Pytest suite for API endpoints |
+| ⚠️ | **Error Handling** | Graceful failures instead of crashes |
+
+---
 
 ## 🏗️ Architecture
 
-```text
-                    User
-                      │
-                      ▼
-                  FastAPI
-                      │
-                      ▼
-                 AI Agent
-                      │
-                LLM decides
-              which tool to use
-                      │
-        ┌─────────────┼─────────────┐
-        ▼             ▼             ▼
-   Calculator    Currency API   Web Search
-        │             │             │
-        └─────────────┼─────────────┘
-                      │
-                      ▼
-                 RAG + Chroma
-                      │
-                      ▼
-                    LLM
-                      │
-                      ▼
-                Final Answer
-                      │
-                      ▼
-                    User
+```mermaid
+flowchart TD
+    U([👤 User]) --> API[🚀 FastAPI<br/>POST /ask]
+    API --> AGENT[🤖 AI Agent<br/>LangChain + Groq]
+    AGENT -->|LLM decides which tool| ROUTER{🔧 Tool Router}
 
+    ROUTER --> CALC[🧮 Calculator]
+    ROUTER --> CUR[💱 Currency API<br/>Frankfurter]
+    ROUTER --> WEB[🌐 Web Search<br/>DuckDuckGo]
+    ROUTER --> RAG[📚 RAG Tool]
+
+    RAG --> CHROMA[(🗄️ Chroma<br/>Vector DB)]
+    CHROMA --> DOCS[📄 company_policy.txt]
+
+    CALC --> LLM[🧠 LLM]
+    CUR --> LLM
+    WEB --> LLM
+    CHROMA --> LLM
+
+    LLM --> ANS[✅ Final Answer]
+    ANS --> U
+```
+
+### How it works
+
+1. **User** sends a question to the `/ask` endpoint.
+2. **FastAPI** validates the request with Pydantic.
+3. The **Agent** reads the question and decides which tool fits best.
+4. The selected **tool** runs and returns its result.
+5. The **LLM** turns the tool output into a clear, natural-language answer.
+
+---
 
 ## 🛠️ Tech Stack
 
-### Backend
-- 🐍 **Python**
-- ⚡ **FastAPI**
-- 🛡️ **Pydantic**
+<table>
+<tr>
+<td valign="top" width="50%">
 
-### AI & LLM
-- 🦜 **LangChain**
-- 🤖 **Groq**
-- 🔧 **LangChain Tools & Agents**
+**⚙️ Backend**
+- 🐍 Python
+- ⚡ FastAPI
+- 🛡️ Pydantic
 
-### RAG & Vector Database
-- 📚 **RAG (Retrieval-Augmented Generation)**
-- 🗄️ **Chroma**
+**🧠 AI & LLM**
+- 🦜 LangChain (Tools & Agents)
+- 🤖 Groq
 
-### External APIs & Tools
-- 💱 **Frankfurter API** — Currency conversion
-- 🌐 **DuckDuckGo Search** — Web search
-- 🔗 **Requests** — API integration
+**📚 RAG & Vector Store**
+- 🔎 Retrieval-Augmented Generation
+- 🗄️ Chroma
 
-### Testing & Development
-- 🧪 **Pytest**
-- 🌿 **Git & GitHub**
-- 🔐 **python-dotenv** — Environment variables
+</td>
+<td valign="top" width="50%">
 
+**🔌 External APIs & Tools**
+- 💱 Frankfurter API (currency)
+- 🌐 DuckDuckGo Search (web)
+- 🔗 Requests (HTTP)
 
-📁 Project Structure
+**🧰 Testing & Dev**
+- 🧪 Pytest
+- 🌿 Git & GitHub
+- 🔐 python-dotenv
 
+</td>
+</tr>
+</table>
+
+---
+
+## 📁 Project Structure
+
+```text
 developer-agent/
 │
 ├── app/
 │   ├── agent/
-│   │   └── agent.py
+│   │   └── agent.py            # Agent setup & tool orchestration
 │   │
 │   ├── rag/
-│   │   └── vector_store.py
+│   │   └── vector_store.py     # Chroma vector store logic
 │   │
 │   ├── tools/
-│   │   ├── calculator.py
-│   │   ├── currency.py
-│   │   ├── rag_tool.py
-│   │   └── web_search.py
+│   │   ├── calculator.py       # Math tool
+│   │   ├── currency.py         # Currency conversion tool
+│   │   ├── rag_tool.py         # Company policy search tool
+│   │   └── web_search.py       # Web search tool
 │   │
-│   └── main.py
+│   └── main.py                 # FastAPI app & routes
 │
 ├── documents/
-│   └── company_policy.txt
+│   └── company_policy.txt      # Knowledge base for RAG
 │
 ├── tests/
-│   └── test_api.py
+│   └── test_api.py             # API tests
 │
 ├── .gitignore
 ├── pytest.ini
 ├── requirements.txt
 └── README.md
+```
 
+---
 
-## ⚙️ Setup & Installation
+## 🚀 Getting Started
 
-### 1. Clone the repository
+### Prerequisites
+
+- Python 3.10 or higher
+- A free [Groq API key](https://console.groq.com/keys)
+
+### 1️⃣ Clone the repository
 
 ```bash
 git clone https://github.com/vnsh223/smart-developer-assistant.git
 cd smart-developer-assistant
+```
 
-2. Create a Virtual Environment
+### 2️⃣ Create a virtual environment
+
+```bash
 python -m venv venv
+```
 
-Activate the virtual environment:
+Activate it:
 
-Linux / macOS
+| OS | Command |
+|---|---|
+| 🐧 Linux / 🍎 macOS | `source venv/bin/activate` |
+| 🪟 Windows | `venv\Scripts\activate` |
 
-source venv/bin/activate
+### 3️⃣ Install dependencies
 
-Windows
-
-venv\Scripts\activate
-3. Install Dependencies
+```bash
 pip install -r requirements.txt
+```
 
+### 4️⃣ Configure environment variables
 
-🔐 Environment Variables
+Create a `.env` file in the project root:
 
-Create a .env file in the project root directory:
-
+```env
 GROQ_API_KEY=your_groq_api_key
+```
 
-Never commit your .env file or API key to GitHub.
+> [!WARNING]
+> Never commit your `.env` file or API key to GitHub. Make sure `.env` is listed in `.gitignore`.
 
-▶️ Run the Application
+### 5️⃣ Run the app
 
-Start the FastAPI server using:
-
+```bash
 uvicorn app.main:app --reload
+```
 
-The application will run at:
+| Resource | URL |
+|---|---|
+| 🌐 App | http://127.0.0.1:8000 |
+| 📘 Swagger Docs | http://127.0.0.1:8000/docs |
 
-http://127.0.0.1:8000
-API Documentation
+---
 
-FastAPI provides interactive Swagger documentation at:
+## 📡 API Usage
 
-http://127.0.0.1:8000/docs
+### `POST /ask`
 
+Send a question to the AI agent. It automatically chooses the right tool.
 
-📡 API Usage
-POST /ask
+**Request**
 
-Send a question to the AI agent.
-
-Request
+```json
 {
   "question": "What is 25 multiplied by 20?"
 }
-Response
+```
+
+**Response**
+
+```json
 {
   "answer": "25 multiplied by 20 is 500."
 }
+```
 
-The agent automatically decides which tool to use based on the user's question.
+**Using cURL**
 
-Example Questions
-What is 25 multiplied by 20?
-Convert 100 USD to INR.
-What is the latest Python version?
-How many paid leave days do employees get?
+```bash
+curl -X POST "http://127.0.0.1:8000/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Convert 100 USD to INR."}'
+```
 
-These questions demonstrate the different capabilities of the agent:
+### 💬 Example Questions
 
-Calculator
-Currency Converter
-Web Search
-Company Policy RAG
-🧪 Testing
+| Question | Tool Used |
+|---|---|
+| `What is 25 multiplied by 20?` | 🧮 Calculator |
+| `Convert 100 USD to INR.` | 💱 Currency Converter |
+| `What is the latest Python version?` | 🌐 Web Search |
+| `How many paid leave days do employees get?` | 📚 Company Policy RAG |
 
-Run the test suite using:
+---
 
+## 🧪 Testing
+
+Run the test suite:
+
+```bash
 pytest
+```
 
-The project includes tests for:
+**Test coverage includes:**
 
-Home endpoint
-Health check endpoint
-Empty question validation
+- ✅ Home endpoint
+- ✅ Health check endpoint
+- ✅ Empty question validation
 
-Example output:
+**Example output:**
 
-3 passed
-👨‍💻 Author
+```text
+================ 3 passed ================
+```
 
-Vansh Kumar
+---
 
-GitHub: https://github.com/vnsh223
+## 🗺️ Roadmap
+
+- [ ] Add conversation memory
+- [ ] Support uploading custom documents for RAG
+- [ ] Add Docker support
+- [ ] Add a simple web UI
+- [ ] Deploy to the cloud
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+1. Fork the repository
+2. Create your branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m "Add amazing feature"`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+---
+
+## 👨‍💻 Author
+
+<div align="center">
+
+**Vansh Kumar**
+
+[![GitHub](https://img.shields.io/badge/GitHub-vnsh223-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/vnsh223)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-vansh6994-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vansh6994/)
+
+<br>
+
+⭐ **If you found this project useful, please consider giving it a star!** ⭐
+
+</div>
