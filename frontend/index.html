@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Smart Developer Assistant</title>
@@ -12,106 +13,238 @@
 
 <body>
 
-    <div class="container">
+    <div class="app-layout">
 
-        <!-- Header -->
-        <header class="header">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
 
-            <div class="logo">
-                🤖
+            <div class="brand">
+                <div class="brand-icon">&lt;/&gt;</div>
+
+                <div>
+                    <h2>Smart Developer</h2>
+                    <p>Your AI productivity partner</p>
+                </div>
             </div>
 
-            <div class="header-text">
-                <h1>Smart Developer Assistant</h1>
-                <p>AI-powered assistant with tools & RAG</p>
-            </div>
-
-            <button id="new-chat-button">
-                + New Chat
+            <button id="new-chat-button" class="new-chat-button">
+                <span>＋</span>
+                New Chat
             </button>
 
-        </header>
-
-
-        <!-- Chat Area -->
-        <main class="chat-container">
-
-            <div id="chat-box" class="chat-box">
-
-                <!-- Welcome Message -->
-                <div class="message assistant-message">
-
-                    <div class="message-label">
-                        🤖 Assistant
-                    </div>
-
-                    <div class="message-content">
-                        👋 Hi! I'm your Smart Developer Assistant.
-                        <br><br>
-                        Ask me about calculations, currency conversion,
-                        current information, or company policies.
-                    </div>
-
-                </div>
-
+            <div class="sidebar-heading">
+                Recent Conversations
             </div>
 
+            <div id="recent-chats" class="recent-chats">
+                <p class="empty-history">
+                    Your conversations will appear here.
+                </p>
+            </div>
 
-            <!-- Input Area -->
-            <div class="input-container">
+            <div class="sidebar-bottom">
 
-                <textarea
-                    id="question"
-                    placeholder="Ask me anything..."
-                    rows="1"
-                ></textarea>
-
-                <button id="ask-button">
-                    Ask
+                <button id="clear-history-button" class="sidebar-action">
+                    <span>⌫</span>
+                    Clear Chat History
                 </button>
 
-            </div>
-
-
-            <!-- Example Questions -->
-            <div class="examples">
-
-                <p>💡 Try asking</p>
-
-                <div class="example-buttons">
-
-                    <button onclick="useExample('What is 25 multiplied by 20?')">
-                        🧮 Calculate
-                    </button>
-
-                    <button onclick="useExample('Convert 100 USD to INR.')">
-                        💱 Currency
-                    </button>
-
-                    <button onclick="useExample('What is the latest Python version?')">
-                        🌐 Web Search
-                    </button>
-
-                    <button onclick="useExample('How many paid leave days do employees get?')">
-                        📚 Company Policy
-                    </button>
-
+                <div class="system-status">
+                    <span class="status-dot"></span>
+                    System Online
                 </div>
 
             </div>
 
+        </aside>
+
+
+        <!-- Main Application -->
+        <main class="main-content">
+
+            <!-- Topbar -->
+            <header class="topbar">
+
+                <button id="menu-button" class="icon-button" aria-label="Toggle sidebar">
+                    ☰
+                </button>
+
+                <div class="topbar-title">
+                    Smart Developer Assistant
+                </div>
+
+                <div class="topbar-status">
+                    <span class="status-dot"></span>
+                    AI Ready
+                </div>
+
+            </header>
+
+
+            <!-- Chat Area -->
+            <section class="workspace">
+
+                <div id="chat-box" class="chat-box">
+
+                    <!-- Welcome Screen -->
+                    <div id="welcome-screen" class="welcome-screen">
+
+                        <div class="welcome-icon">
+                            &lt;/&gt;
+                        </div>
+
+                        <h1>Build, Learn &amp; Explore.</h1>
+
+                        <p class="welcome-subtitle">
+                            Your personal AI developer assistant.
+                        </p>
+
+                        <p class="welcome-description">
+                            Get help with calculations, currency conversion,
+                            web research, and company policy documents.
+                        </p>
+
+
+                        <!-- Feature Cards -->
+                        <div class="feature-grid">
+
+                            <button class="feature-card"
+                                data-question="What is 25 multiplied by 20?">
+
+                                <span class="feature-icon calculator-icon">
+                                    ▦
+                                </span>
+
+                                <strong>Calculator</strong>
+
+                                <span>Perform calculations</span>
+
+                            </button>
+
+
+                            <button class="feature-card"
+                                data-question="Convert 100 USD to INR.">
+
+                                <span class="feature-icon currency-icon">
+                                    ⇄
+                                </span>
+
+                                <strong>Currency Converter</strong>
+
+                                <span>Convert currencies</span>
+
+                            </button>
+
+
+                            <button class="feature-card"
+                                data-question="What is the latest Python version?">
+
+                                <span class="feature-icon search-icon">
+                                    ◎
+                                </span>
+
+                                <strong>Web Search</strong>
+
+                                <span>Explore current information</span>
+
+                            </button>
+
+
+                            <button class="feature-card"
+                                data-question="How many paid leave days do employees get?">
+
+                                <span class="feature-icon policy-icon">
+                                    ▤
+                                </span>
+
+                                <strong>Company Policy</strong>
+
+                                <span>Search your documents</span>
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- Suggested Questions -->
+                        <div class="suggestions-section">
+
+                            <h3>Try asking me...</h3>
+
+                            <div class="suggestion-list">
+
+                                <button class="suggestion-chip"
+                                    data-question="Explain Python decorators in simple words.">
+                                    Explain Python decorators
+                                </button>
+
+                                <button class="suggestion-chip"
+                                    data-question="Convert 100 USD to INR.">
+                                    Convert USD to INR
+                                </button>
+
+                                <button class="suggestion-chip"
+                                    data-question="What is the latest Python version?">
+                                    Latest Python version
+                                </button>
+
+                                <button class="suggestion-chip"
+                                    data-question="How many paid leave days do employees get?">
+                                    Company leave policy
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Input Area -->
+                <div class="composer-wrapper">
+
+                    <form id="chat-form" class="composer">
+
+                        <textarea
+                            id="question"
+                            placeholder="Ask anything about coding..."
+                            rows="1"
+                            aria-label="Your message"
+                        ></textarea>
+
+                        <div class="composer-bottom">
+
+                            <span class="composer-hint">
+                                AI-powered tools · Web Search · RAG
+                            </span>
+
+                            <button
+                                type="submit"
+                                id="ask-button"
+                                aria-label="Send message"
+                            >
+                                ↑
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                    <p class="disclaimer">
+                        AI can make mistakes. Verify important information.
+                    </p>
+
+                </div>
+
+            </section>
+
         </main>
-
-
-        <!-- Footer -->
-        <footer>
-            Built with Python • LangChain • Groq • FastAPI • RAG
-        </footer>
 
     </div>
 
 
-    <!-- JavaScript -->
     <script src="/static/script.js"></script>
 
 </body>

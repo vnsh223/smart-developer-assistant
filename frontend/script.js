@@ -1,296 +1,497 @@
-// -----------------------------------------
-// Get HTML elements
-// -----------------------------------------
+// ========================================
+// 1. GET HTML ELEMENTS
+// ========================================
 
 const questionInput = document.getElementById("question");
 const askButton = document.getElementById("ask-button");
 const chatBox = document.getElementById("chat-box");
+const chatForm = document.getElementById("chat-form");
+
 const newChatButton = document.getElementById("new-chat-button");
+const clearHistoryButton = document.getElementById("clear-history-button");
+const menuButton = document.getElementById("menu-button");
+const sidebar = document.getElementById("sidebar");
+const recentChats = document.getElementById("recent-chats");
 
 
-// -----------------------------------------
-// Create conversation session
-// -----------------------------------------
+// ========================================
+// 2. CHAT DATA
+// ========================================
+
+const STORAGE_KEY = "developer_assistant_conversations";
 
 let sessionId = crypto.randomUUID();
+let conversations = loadConversations();
+let currentConversation = createConversation();
 
 
-// -----------------------------------------
-// Format AI message
-// -----------------------------------------
+// ========================================
+// 3. LOAD AND SAVE CONVERSATIONS
+// ========================================
+
+function loadConversations() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch (error) {
+        console.error("Could not load conversations:", error);
+        return [];
+    }
+}
+
+function saveConversations() {
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(conversations)
+    );
+}
+
+function createConversation() {
+    return {
+        id: sessionId,
+        title: "New Chat",
+        messages: [],
+        updatedAt: Date.now()
+    };
+}
+
+
+// ========================================
+// 4. SAFE MESSAGE FORMATTING
+// ========================================
 
 function formatMessage(message) {
+    let text = String(message ?? "");
 
-    // Make sure message is a string
-    message = String(message);
-
-    // Escape HTML characters for safety
-    message = message
+    text = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
-    // Convert **text** into bold text
-    message = message.replace(
+    text = text.replace(
         /\*\*(.*?)\*\*/g,
         "<strong>$1</strong>"
     );
 
-    // Convert new lines into HTML line breaks
-    message = message.replace(/\n/g, "<br>");
+    text = text.replace(
+        /`([^`]+)`/g,
+        "<code>$1</code>"
+    );
 
-    return message;
+    text = text.replace(/\n/g, "<br>");
+
+    return text;
 }
 
 
-// -----------------------------------------
-// Add message to chat
-// -----------------------------------------
+// ========================================
+// 5. ADD MESSAGE TO CHAT
+// ========================================
 
 function addMessage(sender, message, type) {
-
     const messageDiv = document.createElement("div");
 
     messageDiv.classList.add("message");
+    messageDiv.classList.add(
+        type === "user" ? "user-message" : "assistant-message"
+    );
 
-    if (type === "user") {
-        messageDiv.classList.add("user-message");
-    } else {
-        messageDiv.classList.add("assistant-message");
-    }
+    const label = document.createElement("div");
+    label.className = "message-label";
+    label.textContent = sender;
 
-    const labelDiv = document.createElement("div");
+    const content = document.createElement("div");
+    content.className = "message-content";
+    content.innerHTML = formatMessage(message);
 
-    labelDiv.classList.add("message-label");
-
-    labelDiv.textContent = sender;
-
-
-    const contentDiv = document.createElement("div");
-
-    contentDiv.classList.add("message-content");
-
-    contentDiv.innerHTML = formatMessage(message);
-
-
-    messageDiv.appendChild(labelDiv);
-    messageDiv.appendChild(contentDiv);
-
+    messageDiv.append(label, content);
     chatBox.appendChild(messageDiv);
 
-
-    // Scroll to latest message
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 
-// -----------------------------------------
-// Ask AI Agent
-// -----------------------------------------
+// ========================================
+// 6. SAVE MESSAGE TO CURRENT CHAT
+// ========================================
 
-async function askAgent() {
+function saveMessage(role, content) {
+    currentConversation.messages.push({
+        role: role,
+        content: content
+    });
 
-    const question = questionInput.value.trim();
+    currentConversation.updatedAt = Date.now();
+
+    // Use the first user message as the chat title
+    if (
+        role === "user" &&
+        currentConversation.title === "New Chat"
+    ) {
+        currentConversation.title =
+            content.length > 35
+                ? content.substring(0, 35) + "..."
+                : content;
+    }
+
+    const existingIndex = conversations.findIndex(
+        chat => chat.id === currentConversation.id
+    );
+
+    if (existingIndex !== -1) {
+        conversations[existingIndex] = currentConversation;
+    } else {
+        conversations.unshift(currentConversation);
+    }
+
+    // Most recently updated chats appear first
+    conversations.sort((a, b) => b.updatedAt - a.updatedAt);
+
+    saveConversations();
+    renderRecentChats();
+}
 
 
-    // Don't send empty question
-    if (!question) {
+// ========================================
+// 7. DISPLAY RECENT CONVERSATIONS
+// ========================================
+
+function renderRecentChats() {
+    recentChats.innerHTML = "";
+
+    if (conversations.length === 0) {
+        const emptyMessage = document.createElement("p");
+
+        emptyMessage.className = "empty-history";
+        emptyMessage.textContent = "Your conversations will appear here.";
+
+        recentChats.appendChild(emptyMessage);
         return;
     }
 
+    conversations.forEach(conversation => {
+        const button = document.createElement("button");
 
-    // Show user's message
-    addMessage(
-        "👤 You",
-        question,
-        "user"
+        button.className = "sidebar-action recent-chat-item";
+        button.textContent = "💬 " + conversation.title;
+        button.title = conversation.title;
+
+        button.addEventListener("click", () => {
+            openConversation(conversation.id);
+        });
+
+        recentChats.appendChild(button);
+    });
+}
+
+
+// ========================================
+// 8. OPEN A PREVIOUS CONVERSATION
+// ========================================
+
+function openConversation(id) {
+    const selectedChat = conversations.find(
+        chat => chat.id === id
     );
 
-
-    // Clear input
-    questionInput.value = "";
-
-
-    // Disable Ask button
-    askButton.disabled = true;
-    askButton.textContent = "Thinking...";
-
-
-    try {
-
-        const response = await fetch(
-            "/ask",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    question: question,
-                    session_id: sessionId
-                })
-            }
-        );
-
-
-        // Check server response
-        if (!response.ok) {
-
-            throw new Error(
-                "Server returned an error."
-            );
-        }
-
-
-        // Convert response to JSON
-        const data = await response.json();
-
-
-        // Show AI response
-        addMessage(
-            "🤖 Assistant",
-            data.answer,
-            "assistant"
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-
-        addMessage(
-            "⚠️ Error",
-            "Sorry, something went wrong. Please try again.",
-            "assistant"
-        );
-
-    } finally {
-
-        // Enable Ask button
-        askButton.disabled = false;
-        askButton.textContent = "Ask";
+    if (!selectedChat) {
+        return;
     }
+
+    sessionId = selectedChat.id;
+    currentConversation = selectedChat;
+
+    chatBox.innerHTML = "";
+
+    currentConversation.messages.forEach(message => {
+        addMessage(
+            message.role === "user" ? "👤 You" : "🤖 Assistant",
+            message.content,
+            message.role === "user" ? "user" : "assistant"
+        );
+    });
+
+    if (currentConversation.messages.length === 0) {
+        showWelcomeScreen();
+    }
+
+    questionInput.value = "";
+    questionInput.focus();
 }
 
 
-// -----------------------------------------
-// Start New Chat
-// -----------------------------------------
+// ========================================
+// 9. WELCOME SCREEN
+// ========================================
 
-async function startNewChat() {
+function showWelcomeScreen() {
+    chatBox.innerHTML = `
+        <div id="welcome-screen" class="welcome-screen">
 
-    try {
+            <h1>Build, Learn &amp; Explore.</h1>
 
-        // Tell backend to clear current session
-        const response = await fetch(
-            `/clear-chat/${sessionId}`,
-            {
-                method: "DELETE"
-            }
-        );
+            <p class="welcome-subtitle">
+                Your personal AI developer assistant.
+            </p>
 
+            <p class="welcome-description">
+                Get help with calculations, currency conversion,
+                web research, and company policy documents.
+            </p>
 
-        // Check response
-        if (!response.ok) {
+            <div class="feature-grid">
 
-            throw new Error(
-                "Could not clear chat history."
-            );
-        }
+                <button class="feature-card"
+                    data-question="What is 25 multiplied by 20?">
+                    <strong>▦ Calculator</strong>
+                    <span>Perform calculations</span>
+                </button>
 
+                <button class="feature-card"
+                    data-question="Convert 100 USD to INR.">
+                    <strong>⇄ Currency Converter</strong>
+                    <span>Convert currencies</span>
+                </button>
 
-        // Create a completely new session
-        sessionId = crypto.randomUUID();
+                <button class="feature-card"
+                    data-question="What is the latest Python version?">
+                    <strong>◎ Web Search</strong>
+                    <span>Explore current information</span>
+                </button>
 
-
-        // Clear chat window
-        chatBox.innerHTML = `
-            <div class="message assistant-message">
-
-                <div class="message-label">
-                    🤖 Assistant
-                </div>
-
-                <div class="message-content">
-                    👋 New conversation started!
-                    <br><br>
-                    How can I help you?
-                </div>
+                <button class="feature-card"
+                    data-question="How many paid leave days do employees get?">
+                    <strong>▤ Company Policy</strong>
+                    <span>Search your documents</span>
+                </button>
 
             </div>
-        `;
+
+            <div class="suggestions-section">
+                <h3>Try asking me...</h3>
+
+                <div class="suggestion-list">
+                    <button class="suggestion-chip"
+                        data-question="Explain Python decorators in simple words.">
+                        Explain Python decorators
+                    </button>
+
+                    <button class="suggestion-chip"
+                        data-question="Convert 100 USD to INR.">
+                        Convert USD to INR
+                    </button>
+
+                    <button class="suggestion-chip"
+                        data-question="What is the latest Python version?">
+                        Latest Python version
+                    </button>
+
+                    <button class="suggestion-chip"
+                        data-question="How many paid leave days do employees get?">
+                        Company leave policy
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    `;
+}
 
 
-        // Clear input
-        questionInput.value = "";
+// ========================================
+// 10. SEND QUESTION TO AGENT
+// ========================================
 
+async function askAgent() {
+    const question = questionInput.value.trim();
 
-        // Put cursor in input
-        questionInput.focus();
+    if (!question || askButton.disabled) {
+        return;
+    }
+
+    // Clear the input immediately
+    questionInput.value = "";
+    questionInput.style.height = "auto";
+
+    const welcome = document.getElementById("welcome-screen");
+
+    if (welcome) {
+        welcome.remove();
+    }
+
+    addMessage("👤 You", question, "user");
+    saveMessage("user", question);
+
+    askButton.disabled = true;
+    askButton.textContent = "…";
+
+    try {
+        const response = await fetch("/ask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                question: question,
+                session_id: sessionId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        addMessage("🤖 Assistant", data.answer, "assistant");
+        saveMessage("assistant", data.answer);
 
     } catch (error) {
+        console.error("Agent request failed:", error);
 
-        console.error(error);
+        const errorText =
+            "Sorry, I couldn't connect to the assistant. Please try again.";
 
-        alert(
-            "Could not start a new chat. Please try again."
-        );
+        addMessage("⚠️ Error", errorText, "assistant");
+
+    } finally {
+        askButton.disabled = false;
+        askButton.textContent = "↑";
+        questionInput.focus();
     }
 }
 
 
-// -----------------------------------------
-// Ask button click
-// -----------------------------------------
+// ========================================
+// 11. START NEW CHAT
+// ========================================
 
-askButton.addEventListener(
-    "click",
-    askAgent
-);
-
-
-// -----------------------------------------
-// Enter key
-// -----------------------------------------
-
-questionInput.addEventListener(
-    "keydown",
-    function (event) {
-
-        // Enter sends the message
-        // Shift + Enter creates a new line
-        if (
-            event.key === "Enter" &&
-            !event.shiftKey
-        ) {
-
-            event.preventDefault();
-
-            askAgent();
-        }
+async function startNewChat() {
+    if (askButton.disabled) {
+        return;
     }
-);
 
+    // Keep the previous conversation saved.
+    // Clear its server-side history.
+    try {
+        const response = await fetch(
+            `/clear-chat/${sessionId}`,
+            { method: "DELETE" }
+        );
 
-// -----------------------------------------
-// New Chat button click
-// -----------------------------------------
+        if (!response.ok) {
+            throw new Error("Could not clear server history.");
+        }
+    } catch (error) {
+        console.error("Could not clear server history:", error);
 
-newChatButton.addEventListener(
-    "click",
-    startNewChat
-);
+        alert("Could not start a new chat. Please try again.");
+        return;
+    }
 
+    // Create a new independent conversation
+    sessionId = crypto.randomUUID();
+    currentConversation = createConversation();
 
-// -----------------------------------------
-// Example question buttons
-// -----------------------------------------
+    // Do not delete old conversations
+    questionInput.value = "";
 
-function useExample(question) {
-
-    questionInput.value = question;
+    showWelcomeScreen();
+    renderRecentChats();
 
     questionInput.focus();
 }
+
+
+// ========================================
+// 12. CLEAR ALL SAVED CONVERSATIONS
+// ========================================
+
+async function clearChatHistory() {
+    if (!confirm("Delete all saved conversations from this browser?")) {
+        return;
+    }
+
+    try {
+        // Clear current backend session
+        const response = await fetch(
+            `/clear-chat/${sessionId}`,
+            { method: "DELETE" }
+        );
+
+        if (!response.ok) {
+            throw new Error("Could not clear server history.");
+        }
+
+        conversations = [];
+        saveConversations();
+
+        sessionId = crypto.randomUUID();
+        currentConversation = createConversation();
+
+        showWelcomeScreen();
+        renderRecentChats();
+
+        questionInput.value = "";
+
+    } catch (error) {
+        console.error(error);
+        alert("Could not clear chat history. Please try again.");
+    }
+}
+
+
+// ========================================
+// 13. CONNECT BUTTONS
+// ========================================
+
+chatForm.addEventListener("submit", event => {
+    event.preventDefault();
+    askAgent();
+});
+
+questionInput.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        chatForm.requestSubmit();
+    }
+});
+
+questionInput.addEventListener("input", function() {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 150) + "px";
+});
+
+newChatButton.addEventListener("click", startNewChat);
+clearHistoryButton.addEventListener("click", clearChatHistory);
+
+
+// ========================================
+// 14. SUGGESTION BUTTONS
+// ========================================
+
+document.addEventListener("click", event => {
+    const button = event.target.closest("[data-question]");
+
+    if (!button) {
+        return;
+    }
+
+    questionInput.value = button.dataset.question;
+    askAgent();
+});
+
+
+// ========================================
+// 15. MOBILE SIDEBAR
+// ========================================
+
+menuButton.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+});
+
+
+// ========================================
+// 16. INITIALIZE
+// ========================================
+
+renderRecentChats();
