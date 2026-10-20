@@ -15,7 +15,7 @@
 
 <br>
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Open_App-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://smart-developer-assistant.onrender.com/docs)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Open_App-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://smart-developer-assistant.onrender.com/)
 [![API Docs](https://img.shields.io/badge/📘_API_Docs-Swagger_UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://smart-developer-assistant.onrender.com/docs)
 
 > ⏳ Hosted on Render's free tier, so the first request may take 30-60 seconds to wake the server up.
@@ -44,10 +44,10 @@ It is exposed through a **FastAPI** REST endpoint with **Pydantic** validation a
 
 ## 🌍 Live Demo
 
-**👉 Try it here: [smart-developer-assistant.onrender.com/docs](https://smart-developer-assistant.onrender.com/docs)**
+**👉 Try it here: [smart-developer-assistant.onrender.com](https://smart-developer-assistant.onrender.com/)**
 
 1. Open the link above (wait up to a minute if the server is waking up).
-2. Click **`POST /ask`** → **Try it out**.
+2. To test the agent, open the [API Docs](https://smart-developer-assistant.onrender.com/docs), click **`POST /ask`** → **Try it out**.
 3. Paste one of the questions below and hit **Execute**.
 
 ```json
