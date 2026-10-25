@@ -5,7 +5,8 @@ from langchain_chroma import Chroma
 
 
 # Find our document
-document_path = Path("documents/company_policy.txt")
+project_root = Path(__file__).resolve().parents[2]
+document_path = project_root / "documents" / "company_policy.txt"
 
 # Read the document
 text = document_path.read_text(encoding="utf-8")
@@ -23,5 +24,5 @@ chunks = splitter.create_documents([text])
 vector_store = Chroma.from_documents(
     documents=chunks,
     collection_name="company_policy",
-    persist_directory="chroma_db"
+    persist_directory="/tmp/chroma_db"
 )
