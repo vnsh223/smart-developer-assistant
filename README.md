@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖 Smart Developer Assistant Agent
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=30&duration=3500&pause=1000&color=46E3B7&center=true&vCenter=true&width=700&lines=Smart+Developer+Assistant;LLM+Agent+with+Tool+Calling;RAG+%2B+FastAPI+%2B+LangChain+%2B+Groq" alt="Typing SVG" />
 
 ### An LLM-powered agent that understands your question and picks the right tool to answer it.
 
@@ -15,10 +15,16 @@
 
 <br>
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Open_App-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://smart-developer-assistant.onrender.com/)
+[![Live on Render](https://img.shields.io/badge/🚀_Live_Demo-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://smart-developer-assistant.onrender.com/)
+[![Live on Vercel](https://img.shields.io/badge/▲_Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://smart-developer-assistant-theta.vercel.app/)
 [![API Docs](https://img.shields.io/badge/📘_API_Docs-Swagger_UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://smart-developer-assistant.onrender.com/docs)
 
-> ⏳ Hosted on Render's free tier, so the first request may take 30-60 seconds to wake the server up.
+<br>
+
+![Last Commit](https://img.shields.io/github/last-commit/vnsh223/smart-developer-assistant?style=flat-square&color=46E3B7)
+![Repo Size](https://img.shields.io/github/repo-size/vnsh223/smart-developer-assistant?style=flat-square&color=46E3B7)
+![Stars](https://img.shields.io/github/stars/vnsh223/smart-developer-assistant?style=flat-square&color=46E3B7)
+![License](https://img.shields.io/badge/license-MIT-46E3B7?style=flat-square)
 
 <br>
 
@@ -28,7 +34,8 @@
 [Tech Stack](#-tech-stack) •
 [Getting Started](#-getting-started) •
 [API Usage](#-api-usage) •
-[Testing](#-testing)
+[Testing](#-testing) •
+[Deployment](#-deployment)
 
 </div>
 
@@ -40,15 +47,25 @@
 
 It is exposed through a **FastAPI** REST endpoint with **Pydantic** validation and covered by **Pytest** tests.
 
+> 💡 **Why this project?** It demonstrates the full path from an idea to a deployed AI service: agent design, tool calling, retrieval-augmented generation, API design, testing, and cloud deployment.
+
 ---
 
 ## 🌍 Live Demo
 
-**👉 Try it here: [smart-developer-assistant.onrender.com](https://smart-developer-assistant.onrender.com/)**
+| Platform | Link |
+|---|---|
+| 🟢 **Render** (primary) | [smart-developer-assistant.onrender.com](https://smart-developer-assistant.onrender.com/) |
+| ▲ **Vercel** | [smart-developer-assistant-theta.vercel.app](https://smart-developer-assistant-theta.vercel.app/) |
+| 📘 **Swagger API Docs** | [smart-developer-assistant.onrender.com/docs](https://smart-developer-assistant.onrender.com/docs) |
 
-1. Open the link above (wait up to a minute if the server is waking up).
-2. To test the agent, open the [API Docs](https://smart-developer-assistant.onrender.com/docs), click **`POST /ask`** → **Try it out**.
-3. Paste one of the questions below and hit **Execute**.
+> ⏳ Hosted on free tiers, so the first request may take 30-60 seconds to wake the server up.
+
+### Try it in 3 steps
+
+1. Open the [API Docs](https://smart-developer-assistant.onrender.com/docs) (wait up to a minute if the server is waking up).
+2. Click **`POST /ask`** → **Try it out**.
+3. Paste a question and hit **Execute**.
 
 ```json
 { "question": "Convert 100 USD to INR." }
@@ -72,9 +89,9 @@ It is exposed through a **FastAPI** REST endpoint with **Pydantic** validation a
 | 🧮 | **Calculator** | Accurate mathematical operations |
 | 💱 | **Currency Conversion** | Live exchange rates via the Frankfurter API |
 | 🌐 | **Web Search** | Current information via DuckDuckGo |
-| 📚 | **RAG Policy Search** | Answers from company documents with citations to source text |
+| 📚 | **RAG Policy Search** | Answers from company documents, grounded in source text |
 | 🗄️ | **Vector Database** | Chroma stores and retrieves document embeddings |
-| 🚀 | **REST API** | Fast, async FastAPI backend with Swagger docs |
+| 🚀 | **REST API** | Fast FastAPI backend with auto-generated Swagger docs |
 | 🛡️ | **Request Validation** | Pydantic models reject bad input |
 | 🧪 | **Automated Tests** | Pytest suite for API endpoints |
 | ⚠️ | **Error Handling** | Graceful failures instead of crashes |
@@ -143,10 +160,11 @@ flowchart TD
 - 🌐 DuckDuckGo Search (web)
 - 🔗 Requests (HTTP)
 
-**🧰 Testing & Dev**
+**🧰 Testing, Dev & Deploy**
 - 🧪 Pytest
 - 🌿 Git & GitHub
 - 🔐 python-dotenv
+- ☁️ Render & Vercel
 
 </td>
 </tr>
@@ -157,7 +175,7 @@ flowchart TD
 ## 📁 Project Structure
 
 ```text
-developer-agent/
+smart-developer-assistant/
 │
 ├── app/
 │   ├── agent/
@@ -180,6 +198,7 @@ developer-agent/
 ├── tests/
 │   └── test_api.py             # API tests
 │
+├── index.py                    # Vercel entry point
 ├── .gitignore
 ├── pytest.ini
 ├── requirements.txt
@@ -267,7 +286,12 @@ Send a question to the AI agent. It automatically chooses the right tool.
 }
 ```
 
-**Using cURL (live API)**
+<details>
+<summary><b>📟 cURL examples</b></summary>
+
+<br>
+
+**Live API (Render)**
 
 ```bash
 curl -X POST "https://smart-developer-assistant.onrender.com/ask" \
@@ -275,13 +299,23 @@ curl -X POST "https://smart-developer-assistant.onrender.com/ask" \
   -d '{"question": "What is 25 multiplied by 20?"}'
 ```
 
-**Using cURL (local)**
+**Live API (Vercel)**
+
+```bash
+curl -X POST "https://smart-developer-assistant-theta.vercel.app/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What is 25 multiplied by 20?"}'
+```
+
+**Local**
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/ask" \
   -H "Content-Type: application/json" \
   -d '{"question": "Convert 100 USD to INR."}'
 ```
+
+</details>
 
 ### 💬 Example Questions
 
@@ -316,13 +350,27 @@ pytest
 
 ---
 
+## ☁️ Deployment
+
+The app is deployed on two platforms.
+
+| Platform | Notes |
+|---|---|
+| **Render** | Runs the FastAPI server with a writable filesystem. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| **Vercel** | Runs as a serverless Python function through `index.py`. Set `GROQ_API_KEY` under *Settings → Environment Variables* and redeploy. |
+
+Pushing to the `main` branch triggers an automatic redeploy on both platforms.
+
+---
+
 ## 🗺️ Roadmap
 
+- [x] Deployed on Render
+- [x] Deployed on Vercel
 - [ ] Add conversation memory
 - [ ] Support uploading custom documents for RAG
 - [ ] Add Docker support
 - [ ] Add a simple web UI
-- [x] Deployed on Render
 
 ---
 
@@ -345,7 +393,7 @@ Contributions, issues, and feature requests are welcome!
 **Vansh Kumar**
 
 [![GitHub](https://img.shields.io/badge/GitHub-vnsh223-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/vnsh223)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-vansh6994-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vansh6994/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-vanshkumar01-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vanshkumar01/)
 
 <br>
 
